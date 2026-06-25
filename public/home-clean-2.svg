@@ -1,0 +1,9 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Residential cleaning illustration">
+  <rect width="800" height="600" fill="#0f172a" />
+  <path d="M160 450 L220 340 L340 340 L400 450 Z" fill="#f8fafc" />
+  <path d="M220 340 L290 230 L360 340" fill="#cbd5e1" />
+  <rect x="280" y="360" width="240" height="120" rx="30" fill="#38bdf8" opacity="0.9" />
+  <circle cx="500" cy="500" r="50" fill="#f97316" opacity="0.7" />
+  <circle cx="220" cy="500" r="42" fill="#ffffff" opacity="0.65" />
+  <path d="M260 360 H460" stroke="#0f172a" stroke-width="18" stroke-linecap="round" />
+</svg>

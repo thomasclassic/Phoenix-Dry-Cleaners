@@ -1,0 +1,11 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Modern cleaning machine illustration">
+  <rect width="800" height="600" fill="#0f172a" />
+  <rect x="100" y="180" width="600" height="260" rx="40" fill="#e2e8f0" />
+  <rect x="140" y="220" width="520" height="180" rx="24" fill="#3b82f6" />
+  <circle cx="220" cy="340" r="40" fill="#f97316" />
+  <circle cx="320" cy="340" r="40" fill="#fff" opacity="0.85" />
+  <circle cx="420" cy="340" r="40" fill="#fbbf24" />
+  <rect x="160" y="420" width="480" height="60" rx="20" fill="#94a3b8" />
+  <path d="M180 220h120" stroke="#0f172a" stroke-width="16" stroke-linecap="round" />
+  <path d="M520 220h80" stroke="#0f172a" stroke-width="16" stroke-linecap="round" />
+</svg>
