@@ -69,10 +69,13 @@ npm install
 # Set environment variables
 # .env.local is already created with test keys
 
-# Run dev server
+# Run backend server
+npm run backend
+
+# In a second terminal, run the Vite app
 npm run dev
 
-# Vite will proxy /create-checkout-session to the local API
+# Vite will proxy /api/create-checkout-session to the local backend
 # Visit http://localhost:5173 and test Stripe checkout
 ```
 

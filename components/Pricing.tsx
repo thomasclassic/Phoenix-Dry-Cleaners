@@ -77,7 +77,14 @@ const Pricing = () => {
         body: JSON.stringify({ priceId }),
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`API returned non-JSON response: ${text.slice(0, 240)}`);
+      }
+
       if (!response.ok) throw new Error(data.error || 'Checkout session creation failed');
       if (data.url) {
         window.location.href = data.url;

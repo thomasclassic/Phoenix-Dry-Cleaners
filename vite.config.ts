@@ -6,8 +6,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api/create-checkout-session': {
-        target: 'http://localhost:4242/api/create-checkout-session',
+      '/api': {
+        target: 'http://localhost:4242',
         changeOrigin: true,
       },
     },
