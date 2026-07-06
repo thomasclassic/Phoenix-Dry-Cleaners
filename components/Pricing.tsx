@@ -69,15 +69,33 @@ const Pricing = () => {
       const stripe = await stripePromise;
       if (!stripe) throw new Error('Unable to load Stripe');
 
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ priceId }),
-      });
+      const candidateUrls = import.meta.env.DEV
+        ? ['/api/create-checkout-session', '/create-checkout-session']
+        : [`${window.location.origin}/api/create-checkout-session`];
 
-      const text = await response.text();
+      let response: Response | null = null;
+      let text = '';
+
+      for (const url of candidateUrls) {
+        response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({ priceId }),
+        });
+
+        text = await response.text();
+        if (response.ok || response.status !== 404) {
+          break;
+        }
+      }
+
+      if (!response) {
+        throw new Error('Checkout endpoint could not be reached.');
+      }
+
       let data: any;
       try {
         data = JSON.parse(text);
