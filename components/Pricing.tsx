@@ -3,64 +3,192 @@ import { loadStripe } from '@stripe/stripe-js';
 
 type PricingCategory = 'laundry' | 'household' | 'specialized';
 
+type Product = {
+  id: string;
+  name: string;
+  price: string;
+  unit: string;
+  detail: string;
+  description: string;
+  features: string[];
+  priceId: string;
+};
+
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 const Pricing = () => {
   const [activeTab, setActiveTab] = useState<PricingCategory>('laundry');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
-  // Converted from KES to USD (approx rate 1:130) based on the previously requested premium scale
-  const laundryItems = [
-    { name: 'Wash, Dry & Fold', price: '15.00', unit: 'per kg', detail: 'Premium eco-detergent included' },
-    { name: 'Executive Suit (2-Piece)', price: '56.00', unit: 'per set', detail: 'Hand-finished, luxury hanger' },
-    { name: 'Evening / Wedding Gown', price: '427.00', unit: 'starting from', detail: 'Intricate detail preservation' },
-    { name: 'Silk Blouse / Shirt', price: '28.00', unit: 'per item', detail: 'Delicate fiber protection' },
-    { name: 'Designer Handbag', price: '208.00', unit: 'per item', detail: 'Leather conditioning & restoration' },
-    { name: 'Leather Jacket', price: '127.00', unit: 'per item', detail: 'Deep cleaning & buffing' },
+  const laundryItems: Product[] = [
+    {
+      id: 'wash-dry-fold',
+      name: 'Wash, Dry & Fold',
+      price: '15.00',
+      unit: 'per kg',
+      detail: 'Premium eco-detergent included',
+      description: 'Gentle, express wash and dry service with luxury scent and folded presentation.',
+      features: ['Eco-friendly detergents', 'Express same-day service', 'Delicate handling'],
+      priceId: 'price_1WashDryFold',
+    },
+    {
+      id: 'executive-suit',
+      name: 'Executive Suit (2-Piece)',
+      price: '56.00',
+      unit: 'per set',
+      detail: 'Hand-finished, luxury hanger',
+      description: 'Professional dry cleaning and finishing for two-piece executive suits.',
+      features: ['Fine fabric care', 'Hand-brushed finish', 'Premium hanger presentation'],
+      priceId: 'price_1ExecutiveSuit',
+    },
+    {
+      id: 'wedding-gown',
+      name: 'Evening / Wedding Gown',
+      price: '427.00',
+      unit: 'starting from',
+      detail: 'Intricate detail preservation',
+      description: 'Specialist care for gowns, evening wear and delicate bridal garments.',
+      features: ['Bead and lace protection', 'Steam-press and preservation', 'Premium packaging'],
+      priceId: 'price_1WeddingGown',
+    },
+    {
+      id: 'silk-blouse',
+      name: 'Silk Blouse / Shirt',
+      price: '28.00',
+      unit: 'per item',
+      detail: 'Delicate fiber protection',
+      description: 'Expert cleaning for delicate silk blouses and fine shirts.',
+      features: ['Silk-safe solvents', 'Fine detail inspection', 'Soft-press finish'],
+      priceId: 'price_1SilkBlouse',
+    },
+    {
+      id: 'designer-handbag',
+      name: 'Designer Handbag',
+      price: '208.00',
+      unit: 'per item',
+      detail: 'Leather conditioning & restoration',
+      description: 'Luxury leather and designer handbag cleaning with condition restoration.',
+      features: ['Leather treatment', 'Stain removal', 'Odor neutralization'],
+      priceId: 'price_1DesignerHandbag',
+    },
+    {
+      id: 'leather-jacket',
+      name: 'Leather Jacket',
+      price: '127.00',
+      unit: 'per item',
+      detail: 'Deep cleaning & buffing',
+      description: 'Specialized leather cleaning and buffing service for jackets and outerwear.',
+      features: ['Leather-safe polish', 'Conditioning treatment', 'Soft lining care'],
+      priceId: 'price_1LeatherJacket',
+    },
   ];
 
-  const householdItems = [
-    { name: 'King Size Duvet', price: '74.00', unit: 'per item', detail: 'Antibacterial treatment' },
-    { name: 'Area Rug / Carpet', price: '35.00', unit: 'per sq meter', detail: 'Industrial deep extraction' },
-    { name: 'Curtain / Drapes', price: '22.00', unit: 'per panel', detail: 'Steam pressing on-site option' },
-    { name: 'Bed Linen Set', price: '65.00', unit: 'per set', detail: 'Crisp hotel-grade finish' },
+  const householdItems: Product[] = [
+    {
+      id: 'king-size-duvet',
+      name: 'King Size Duvet',
+      price: '74.00',
+      unit: 'per item',
+      detail: 'Antibacterial treatment',
+      description: 'Premium duvet cleaning with bacteria and allergen removal, delivered fresh.',
+      features: ['Sanitizing wash', 'Odor elimination', 'Luxury soft finish'],
+      priceId: 'price_1KingDuvet',
+    },
+    {
+      id: 'area-rug',
+      name: 'Area Rug / Carpet',
+      price: '35.00',
+      unit: 'per sq meter',
+      detail: 'Industrial deep extraction',
+      description: 'Deep-clean and restore area rugs and carpets with professional extraction.',
+      features: ['Stain lifting', 'Fiber restoration', 'Fast drying'],
+      priceId: 'price_1AreaRug',
+    },
+    {
+      id: 'curtain-drapes',
+      name: 'Curtain / Drapes',
+      price: '22.00',
+      unit: 'per panel',
+      detail: 'Steam pressing on-site option',
+      description: 'Expert curtain and drape cleaning with optional on-site steam pressing.',
+      features: ['Steam press available', 'Dust removal', 'Color-safe cleaning'],
+      priceId: 'price_1CurtainDrapes',
+    },
+    {
+      id: 'bed-linen-set',
+      name: 'Bed Linen Set',
+      price: '65.00',
+      unit: 'per set',
+      detail: 'Crisp hotel-grade finish',
+      description: 'Luxury bed linen cleaning with a crisp finish for sheets, pillowcases and duvet covers.',
+      features: ['Hotel-style press', 'Fragrance finish', 'Sanitized clean'],
+      priceId: 'price_1BedLinen',
+    },
   ];
 
-  const specializedItems = [
-    { name: 'Full Home Fumigation', price: '554.00', unit: 'starting from', detail: '3-Bedroom premium package' },
-    { name: 'Local Moving Service', price: '1,269.00', unit: 'starting from', detail: 'Full packing & insurance' },
-    { name: 'Deep Home Cleaning', price: '346.00', unit: 'per session', detail: '8-hour intensive session' },
-    { name: 'Global Parcel Delivery', price: '288.00', unit: 'up to 5kg', detail: 'Phoenix Express tracking' },
+  const specializedItems: Product[] = [
+    {
+      id: 'home-fumigation',
+      name: 'Full Home Fumigation',
+      price: '554.00',
+      unit: 'starting from',
+      detail: '3-Bedroom premium package',
+      description: 'Complete home fumigation with premium service for three-bedroom residences.',
+      features: ['Pest-free guarantee', 'Eco-safe treatment', 'Full inspection'],
+      priceId: 'price_1HomeFumigation',
+    },
+    {
+      id: 'local-moving',
+      name: 'Local Moving Service',
+      price: '1,269.00',
+      unit: 'starting from',
+      detail: 'Full packing & insurance',
+      description: 'White-glove local moving with packing, protection and insured transit.',
+      features: ['Full packing service', 'Insurance included', 'Door-to-door shipping'],
+      priceId: 'price_1LocalMoving',
+    },
+    {
+      id: 'deep-home-cleaning',
+      name: 'Deep Home Cleaning',
+      price: '346.00',
+      unit: 'per session',
+      detail: '8-hour intensive session',
+      description: 'Intensive home cleaning for kitchens, bathrooms and living areas.',
+      features: ['Deep sanitation', 'Detailed attention', 'Premium products'],
+      priceId: 'price_1DeepHomeCleaning',
+    },
+    {
+      id: 'parcel-delivery',
+      name: 'Global Parcel Delivery',
+      price: '288.00',
+      unit: 'up to 5kg',
+      detail: 'Phoenix Express tracking',
+      description: 'Express parcel service with tracking and secure global delivery.',
+      features: ['Doorstep pickup', 'Real-time tracking', 'Fast customs clearance'],
+      priceId: 'price_1ParcelDelivery',
+    },
   ];
 
-  const renderItems = (items: typeof laundryItems) => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {items.map((item, idx) => (
-        <div key={idx} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all flex justify-between items-center group cursor-default">
-          <div className="flex-grow">
-            <h4 className="text-xl font-black text-slate-900 group-hover:text-phoenix-accent transition-colors">{item.name}</h4>
-            <p className="text-slate-500 text-sm font-medium mt-1">{item.detail}</p>
-          </div>
-          <div className="text-right shrink-0 ml-6">
-            <div className="text-3xl font-black text-blue-900">
-              <span className="text-xs font-bold text-slate-400 mr-1">$</span>
-              {item.price}
-            </div>
-            <div className="text-[10px] uppercase tracking-widest font-black text-slate-400 mt-1">{item.unit}</div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  const productsByCategory = {
+    laundry: laundryItems,
+    household: householdItems,
+    specialized: specializedItems,
+  };
+
+  const handleProductSelect = (product: Product) => {
+    setSelectedProduct(product);
+    setCheckoutError(null);
+  };
 
   const handleCheckout = async () => {
     setCheckoutError(null);
     const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-    const priceId = import.meta.env.VITE_STRIPE_PRICE_ID;
+    const priceId = selectedProduct?.priceId;
 
     if (!publishableKey || !priceId) {
-      setCheckoutError('Stripe keys are not configured. Please set VITE_STRIPE_PUBLISHABLE_KEY and VITE_STRIPE_PRICE_ID.');
+      setCheckoutError(selectedProduct ? 'Stripe publishable key is not configured.' : 'Please select a product to checkout.');
       return;
     }
 
@@ -116,6 +244,34 @@ const Pricing = () => {
     }
   };
 
+  const renderItems = (items: Product[]) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {items.map((item) => (
+        <div key={item.id} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all group cursor-pointer" onClick={() => handleProductSelect(item)}>
+          <div className="flex justify-between items-start gap-6">
+            <div className="flex-grow">
+              <h4 className="text-xl font-black text-slate-900 group-hover:text-phoenix-accent transition-colors">{item.name}</h4>
+              <p className="text-slate-500 text-sm font-medium mt-1">{item.detail}</p>
+            </div>
+            <div className="text-right shrink-0 ml-6">
+              <div className="text-3xl font-black text-blue-900">
+                <span className="text-xs font-bold text-slate-400 mr-1">$</span>
+                {item.price}
+              </div>
+              <div className="text-[10px] uppercase tracking-widest font-black text-slate-400 mt-1">{item.unit}</div>
+            </div>
+          </div>
+          <div className="mt-6 flex items-center justify-between gap-4">
+            <span className="text-xs uppercase tracking-[0.3em] text-slate-400 font-black">Click to view details</span>
+            <button type="button" className="py-3 px-5 rounded-full bg-blue-900 text-white text-sm font-black uppercase tracking-[0.2em] shadow-lg hover:bg-blue-800 transition" onClick={(event) => { event.stopPropagation(); handleProductSelect(item); }}>
+              View
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="bg-slate-50 min-h-screen">
       <section className="relative h-[45vh] flex items-center justify-center overflow-hidden">
@@ -140,7 +296,10 @@ const Pricing = () => {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as PricingCategory)}
+              onClick={() => {
+                setActiveTab(tab.id as PricingCategory);
+                setSelectedProduct(null);
+              }}
               className={`px-10 py-5 rounded-full font-black text-lg transition-all flex items-center gap-4 shadow-sm border ${
                 activeTab === tab.id 
                   ? 'bg-blue-900 text-white shadow-2xl border-blue-900 scale-110' 
@@ -152,6 +311,54 @@ const Pricing = () => {
             </button>
           ))}
         </div>
+
+        {selectedProduct && (
+          <div className="mb-16 bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-slate-100">
+            <div className="grid grid-cols-1 lg:grid-cols-3">
+              <div className="bg-slate-950 p-12 lg:p-16 text-white flex flex-col justify-between">
+                <div>
+                  <span className="uppercase tracking-[0.3em] text-sm text-phoenix-accent font-black">Selected Service</span>
+                  <h2 className="mt-6 text-4xl font-black leading-tight">{selectedProduct.name}</h2>
+                  <p className="mt-4 text-slate-300 text-sm leading-7">{selectedProduct.detail}</p>
+                </div>
+                <div className="mt-10">
+                  <div className="text-5xl font-black text-white">
+                    <span className="text-xl font-bold text-slate-400 mr-2">$</span>{selectedProduct.price}
+                  </div>
+                  <div className="text-xs uppercase tracking-[0.3em] text-slate-500 mt-2">{selectedProduct.unit}</div>
+                </div>
+              </div>
+              <div className="p-12 lg:p-16 lg:col-span-2">
+                <div className="flex items-center justify-between gap-4 mb-10">
+                  <h3 className="text-3xl font-black text-slate-900">Product Overview</h3>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedProduct(null)}
+                    className="text-sm uppercase tracking-[0.3em] font-black text-blue-900 hover:text-blue-700"
+                  >
+                    Back to catalogue
+                  </button>
+                </div>
+                <p className="text-slate-600 leading-relaxed mb-8">{selectedProduct.description}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                  {selectedProduct.features.map((feature, idx) => (
+                    <div key={idx} className="rounded-3xl bg-slate-50 p-6 border border-slate-200">
+                      <p className="font-black text-slate-900">{feature}</p>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={handleCheckout}
+                  disabled={isLoading}
+                  className="inline-flex items-center justify-center gap-3 bg-phoenix-accent hover:bg-orange-600 text-white px-12 py-5 rounded-3xl font-black text-xl shadow-2xl transition-all disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isLoading ? 'Redirecting…' : `Checkout ${selectedProduct.name}`}
+                </button>
+                {checkoutError && <p className="mt-6 text-sm text-red-500 font-semibold">{checkoutError}</p>}
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="mb-24">
           {activeTab === 'laundry' && renderItems(laundryItems)}
@@ -209,7 +416,7 @@ const Pricing = () => {
           disabled={isLoading}
           className="w-full inline-flex items-center justify-center gap-3 bg-phoenix-accent hover:bg-orange-600 text-white px-12 py-5 rounded-3xl font-black text-xl shadow-2xl transition-all disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isLoading ? 'Redirecting…' : 'Checkout'}
+          {isLoading ? 'Redirecting…' : selectedProduct ? `Checkout ${selectedProduct.name}` : 'Select a product to checkout'}
         </button>
       </section>
 
